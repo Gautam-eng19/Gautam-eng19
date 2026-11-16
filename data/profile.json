@@ -1,0 +1,104 @@
+{
+  "login": "Gautam-eng19",
+  "name": "Gautam Jain",
+  "terminal_title": "gautam@github: ~",
+  "headline": [
+    "Software Developer | Backend Engineering",
+    "C++ & DSA | Cloud Computing Enthusiast"
+  ],
+  "hero_rows": [
+    [
+      "education",
+      "B.Tech, Artificial Intelligence · SVNIT Surat"
+    ],
+    [
+      "location",
+      "Surat, Gujarat, India"
+    ],
+    [
+      "building",
+      "CloudForge · TaskForge"
+    ],
+    [
+      "practice",
+      "{lc_solved} LeetCode problems solved"
+    ],
+    [
+      "exploring",
+      "cloud computing · AI and NLP basics"
+    ],
+    [
+      "activity",
+      "{contrib} contributions in the last year"
+    ]
+  ],
+  "taglines": [
+    "Building software, one project at a time.",
+    "Turning ideas into working applications.",
+    "Exploring backend engineering and full-stack development.",
+    "Solving problems with C++ and algorithms.",
+    "Exploring Cloud Computing and infrastructure.",
+    "Learning, experimenting and building."
+  ],
+  "leetcode": {
+    "username": "gautamjain12",
+    "as_of": "2026-11-16",
+    "solved": 362,
+    "easy": 187,
+    "medium": 166,
+    "hard": 9,
+    "max_streak_days": 280,
+    "badges": 3
+  },
+  "leetcode_repo": "leetcode-solutions",
+  "language_overrides": {
+    "leetcode-solutions": "C++"
+  },
+  "topic_labels": {
+    "BackTracing": "Backtracking",
+    "BitManipulation": "Bit Manipulation",
+    "Divide&Conquere": "Divide & Conquer",
+    "Dynamic Programing": "Dynamic Programming",
+    "HashTable": "Hash Table",
+    "Two Pointer": "Two Pointers"
+  },
+  "projects": [
+    {
+      "repo": "VAANI",
+      "badge": "IIT Mandi hackathon '26",
+      "stack": "FastAPI · React · TypeScript",
+      "about": "Compares a spoken reading with baseline recordings word by word and reports pace, pause, pitch and loudness flaws with timestamps."
+    },
+    {
+      "repo": "PARAKH",
+      "badge": "UNCHARTED '26 · team of 3",
+      "stack": "FastAPI · MongoDB · GitHub Actions",
+      "about": "Runs a fixed test set against two versions of an LLM prompt and returns one verdict with reasons. Dashboard, CLI and a pull request bot."
+    },
+    {
+      "repo": "leetcode-solutions",
+      "badge": "{lc_repo} solutions",
+      "stack": "C++",
+      "about": "My C++ solutions to LeetCode problems, organised by topic and difficulty: arrays, strings, sliding window, linked lists and more."
+    },
+    {
+      "repo": "CloudForge",
+      "badge": "early stage",
+      "stack": "Node.js · Express",
+      "about": "A mini cloud platform I am building from scratch to learn cloud engineering. So far: an Express REST API to register and manage projects."
+    },
+    {
+      "repo": "TaskForge",
+      "badge": "in progress",
+      "stack": "HTML · CSS",
+      "about": "A productivity dashboard with tasks, progress, streaks and focus time. The interface is built; the JavaScript logic comes next."
+    },
+    {
+      "repo": "Hindi-Punctuation-Translation",
+      "title": "Hindi text restoration",
+      "badge": "learning project",
+      "stack": "Python · Jupyter",
+      "about": "A first NLP experiment: restoring punctuation and sentence order in messy Hindi text with a multilingual DistilBERT model."
+    }
+  ]
+}
