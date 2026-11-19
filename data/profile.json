@@ -100,5 +100,217 @@
       "stack": "Python · Jupyter",
       "about": "A first NLP experiment: restoring punctuation and sentence order in messy Hindi text with a multilingual DistilBERT model."
     }
+  ],
+  "skills": [
+    {
+      "group": "Languages",
+      "items": [
+        {
+          "name": "C++",
+          "logo": "cplusplus",
+          "color": "659AD2",
+          "url": "https://isocpp.org/"
+        },
+        {
+          "name": "C",
+          "logo": "c",
+          "color": "A8B9CC",
+          "url": "https://en.wikipedia.org/wiki/C_(programming_language)"
+        },
+        {
+          "name": "Java",
+          "logo": "openjdk",
+          "color": "ED8B00",
+          "url": "https://dev.java/"
+        },
+        {
+          "name": "Python",
+          "logo": "python",
+          "color": "4B8BBE",
+          "url": "https://www.python.org/"
+        },
+        {
+          "name": "JavaScript",
+          "logo": "javascript",
+          "color": "F7DF1E",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+        },
+        {
+          "name": "TypeScript",
+          "logo": "typescript",
+          "color": "3178C6",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "name": "SQL",
+          "logo": "icon:database",
+          "color": "3FB950",
+          "url": "https://en.wikipedia.org/wiki/SQL"
+        }
+      ]
+    },
+    {
+      "group": "Frontend",
+      "items": [
+        {
+          "name": "HTML",
+          "logo": "html5",
+          "color": "E34F26",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML"
+        },
+        {
+          "name": "CSS",
+          "logo": "css",
+          "color": "A371F7",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS"
+        },
+        {
+          "name": "React",
+          "logo": "react",
+          "color": "61DAFB",
+          "url": "https://react.dev/"
+        },
+        {
+          "name": "Vite",
+          "logo": "vite",
+          "color": "8C92FF",
+          "url": "https://vite.dev/"
+        },
+        {
+          "name": "Tailwind CSS",
+          "logo": "tailwindcss",
+          "color": "38BDF8",
+          "url": "https://tailwindcss.com/"
+        }
+      ]
+    },
+    {
+      "group": "Backend",
+      "items": [
+        {
+          "name": "Node.js",
+          "logo": "nodedotjs",
+          "color": "5FA04E",
+          "url": "https://nodejs.org/"
+        },
+        {
+          "name": "Express.js",
+          "logo": "express",
+          "color": "FFFFFF",
+          "url": "https://expressjs.com/"
+        },
+        {
+          "name": "FastAPI",
+          "logo": "fastapi",
+          "color": "05998B",
+          "url": "https://fastapi.tiangolo.com/"
+        },
+        {
+          "name": "MERN Stack",
+          "logo": "icon:stack",
+          "color": "3FB950",
+          "url": "https://www.mongodb.com/resources/languages/mern-stack"
+        },
+        {
+          "name": "REST APIs",
+          "logo": "icon:arrows",
+          "color": "3FB950",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/REST"
+        },
+        {
+          "name": "JWT",
+          "logo": "jsonwebtokens",
+          "color": "FB015B",
+          "url": "https://jwt.io/"
+        },
+        {
+          "name": "Middleware",
+          "logo": "icon:layers",
+          "color": "3FB950",
+          "url": "https://expressjs.com/en/guide/using-middleware.html"
+        },
+        {
+          "name": "RBAC",
+          "logo": "icon:shield",
+          "color": "3FB950",
+          "url": "https://en.wikipedia.org/wiki/Role-based_access_control"
+        }
+      ]
+    },
+    {
+      "group": "Databases",
+      "items": [
+        {
+          "name": "MongoDB",
+          "logo": "mongodb",
+          "color": "47A248",
+          "url": "https://www.mongodb.com/"
+        },
+        {
+          "name": "PostgreSQL",
+          "logo": "postgresql",
+          "color": "699ECA",
+          "url": "https://www.postgresql.org/"
+        }
+      ]
+    },
+    {
+      "group": "Tools",
+      "items": [
+        {
+          "name": "Git",
+          "logo": "git",
+          "color": "F05032",
+          "url": "https://git-scm.com/"
+        },
+        {
+          "name": "GitHub",
+          "logo": "github",
+          "color": "FFFFFF",
+          "url": "https://github.com/"
+        },
+        {
+          "name": "Postman",
+          "logo": "postman",
+          "color": "FF6C37",
+          "url": "https://www.postman.com/"
+        },
+        {
+          "name": "VS Code",
+          "logo": "icon:code",
+          "color": "23A9F2",
+          "url": "https://code.visualstudio.com/"
+        }
+      ]
+    },
+    {
+      "group": "Concepts",
+      "items": [
+        {
+          "name": "Data Structures & Algorithms",
+          "logo": "icon:tree",
+          "color": "3FB950",
+          "url": "https://en.wikipedia.org/wiki/Data_structure"
+        },
+        {
+          "name": "OOP",
+          "logo": "icon:cube",
+          "color": "3FB950",
+          "url": "https://en.wikipedia.org/wiki/Object-oriented_programming"
+        },
+        {
+          "name": "DBMS",
+          "logo": "icon:database",
+          "color": "3FB950",
+          "url": "https://en.wikipedia.org/wiki/Database"
+        },
+        {
+          "name": "Authentication",
+          "logo": "icon:lock",
+          "color": "3FB950",
+          "url": "https://en.wikipedia.org/wiki/Authentication"
+        }
+      ]
+    }
   ]
 }

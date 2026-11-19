@@ -14,7 +14,9 @@ import json
 import math
 import os
 import re
+import urllib.parse
 import urllib.request
+from base64 import b64encode
 from html import escape, unescape
 from pathlib import Path
 
@@ -252,9 +254,12 @@ def hero(d):
             delay = t0 + sweep * cy / art["h"] + 0.3 * jitter
             groups.setdefault(round(delay / step), []).append((cx + AX, cy + AY, r, colour))
         for g in sorted(groups):
+            by_colour = {}                                # one fill per colour keeps the file small
+            for cx, cy, r, colour in groups[g]:
+                by_colour.setdefault(colour, []).append(f'<circle cx="{cx:g}" cy="{cy:g}" r="{r:g}"/>')
             body.append(f'<g class="dg" style="animation-delay:{g * step:.2f}s">' + "".join(
-                f'<circle cx="{cx:g}" cy="{cy:g}" r="{r:g}" fill="{colour}"/>' for cx, cy, r, colour in groups[g])
-                + "</g>")
+                (f'<g fill="{c}">' + "".join(dots) + "</g>") if len(dots) > 1 else dots[0].replace("/>", f' fill="{c}"/>')
+                for c, dots in by_colour.items()) + "</g>")
         body.append(f'<g class="scan"><rect x="{AX}" y="{AY - 16}" width="{art["w"]}" height="16" fill="url(#glow)"/>'
                     f'<rect x="{AX}" y="{AY}" width="{art["w"]}" height="1.5" fill="#7ee787"/></g>')
 
@@ -487,6 +492,74 @@ def project_cards(d, mode):
         write(f"card-{repo['name']}-{mode}.svg", svg(W, H, "".join(body), f"{title}: {proj['about']}"))
 
 
+# ---------------------------------------------------------------- README sections
+# The skills and project blocks of README.md are generated from data/profile.json, between
+# <!-- name:start --> and <!-- name:end --> markers. Everything else in the README is hand-written.
+
+ICONS = {   # 24x24 line icons for skills that have no brand logo
+    "database": '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>'
+                '<path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+    "arrows": '<path d="M4 8h15l-4-4M20 16H5l4 4"/>',
+    "layers": '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 17l9 5 9-5"/>',
+    "shield": '<path d="M12 2.5l8 3v6.5c0 5-3.5 8.3-8 9.5-4.5-1.2-8-4.5-8-9.5V5.5z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+    "lock": '<rect x="4.5" y="10.5" width="15" height="11" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
+    "tree": '<circle cx="12" cy="4.5" r="2.5"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'
+            '<path d="M10.8 6.7L6.7 16.3M13.2 6.7l4.1 9.6"/>',
+    "cube": '<path d="M12 2.5l8.5 4.75v9.5L12 21.5l-8.5-4.75v-9.5z"/><path d="M3.5 7.25L12 12l8.5-4.75M12 12v9.5"/>',
+    "stack": '<rect x="3" y="3" width="18" height="4.5" rx="1.2"/><rect x="3" y="9.75" width="18" height="4.5" rx="1.2"/>'
+             '<rect x="3" y="16.5" width="18" height="4.5" rx="1.2"/>',
+    "code": '<path d="M8.5 6L2.5 12l6 6M15.5 6l6 6-6 6"/>',
+}
+
+
+def badge_url(name, logo, color):
+    label = urllib.parse.quote(name.replace("-", "--").replace("_", "__"), safe="")
+    url = f"https://img.shields.io/badge/{label}-161b22?style=for-the-badge"
+    if logo.startswith("icon:"):
+        icon = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#{color}" '
+                f'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">{ICONS[logo[5:]]}</svg>')
+        data = "data:image/svg+xml;base64," + b64encode(icon.encode()).decode()
+        return url + "&logo=" + urllib.parse.quote(data, safe="")
+    return url + f"&logo={logo}&logoColor={color}"
+
+
+def skills_block():
+    rows = []
+    for group in CFG["skills"]:
+        cells = "\n".join(f'<a href="{escape(it["url"], quote=True)}"><img src="{escape(badge_url(it["name"], it["logo"], it["color"]), quote=True)}" '
+                          f'alt="{escape(it["name"], quote=True)}" height="28"></a>' for it in group["items"])
+        rows.append(f'<tr>\n<td><b>{escape(group["group"])}</b></td>\n<td>\n{cells}\n</td>\n</tr>')
+    return "<table>\n" + "\n".join(rows) + "\n</table>"
+
+
+def projects_block():
+    # GitHub hides a link whose address ends in #gh-dark-mode-only or #gh-light-mode-only when the viewer's
+    # theme does not match, so each card is two links straight to the repo, one per theme. (A <picture>
+    # inside a link does not work here: GitHub re-links the image to the raw file.)
+    lines = ['<div align="center">']
+    for proj in CFG["projects"]:
+        repo = proj["repo"]
+        url = f"https://github.com/{LOGIN}/{repo}"
+        alt = escape(f"{proj.get('title', repo)}: {proj['about']}", quote=True)
+        lines.append("".join(f'<a href="{url}#gh-{mode}-mode-only"><img src="assets/card-{repo}-{mode}.svg" '
+                             f'width="49%" alt="{alt}"></a>' for mode in ("dark", "light")))
+    lines.append("</div>")
+    return "\n".join(lines)
+
+
+def update_readme():
+    path = ROOT / "README.md"
+    readme = original = path.read_text(encoding="utf-8")
+    for name, block in (("skills", skills_block()), ("projects", projects_block())):
+        start, end = f"<!-- {name}:start -->", f"<!-- {name}:end -->"
+        if start in readme and end in readme:
+            a, b = readme.index(start) + len(start), readme.index(end)
+            readme = readme[:a] + "\n\n" + block + "\n\n" + readme[b:]
+    if readme != original:
+        path.write_text(readme, encoding="utf-8", newline="\n")
+        print("README.md sections updated")
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -499,6 +572,7 @@ def main():
         leetcode_card(d, mode)
         calendar_card(d, mode)
         project_cards(d, mode)
+    update_readme()
     cal, lc = d["cal"], d["lc"]
     print(f"contributions={cal['total']} active={cal['active']} longest={cal['longest']} current={cal['current']} "
           f"best={cal['best']} stars={d['stars']} leetcode={lc['total']} levels={lc['levels']}")
