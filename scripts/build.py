@@ -257,6 +257,51 @@ def hero(d):
     body.append(f'<g class="c0"><rect x="{tx:.1f}" y="52" width="{W}" height="20" fill="{t["bg"]}"/>'
                 f'<rect class="cur" x="{tx:.1f}" y="54" width="8" height="15" fill="{t["accent"]}"/></g>')
 
+    # glitch style: the photo fades in clear, holds, glitches, settles into the glitch look,
+    # then twitches briefly every few seconds. Hard cuts between pre-made frames (see scripts/glitchify.py).
+    gl = art.get("glitch")
+    if gl:
+        gx, gy, gw, gh = AX + gl["x"], AY + gl["y"], gl["w"], gl["h"]
+        frames = [gl["clean"], gl["rest"]] + gl["burst"]
+        ids = ["gc", "gr"] + [f"gb{i}" for i in range(len(gl["burst"]))]
+        body.append("<defs>" + "".join(
+            f'<image id="{i}" x="{gx:g}" y="{gy:g}" width="{gw:g}" height="{gh:g}" preserveAspectRatio="none" href="{f}"/>'
+            for i, f in zip(ids, frames)) + "</defs>")
+
+        def cuts(name, windows, length, start=None):
+            """Keyframes that show an element only inside the given windows (seconds), with hard cuts."""
+            stops = ["0%{opacity:0}"]
+            for a, b in windows:
+                stops += [f"{100 * a / length:.3f}%{{opacity:1}}", f"{100 * b / length:.3f}%{{opacity:0}}"]
+            css.append(f"@keyframes {name}{{{''.join(stops)}100%{{opacity:0}}}}")
+            if start is None:                                  # one pass, from page load
+                return f"opacity:0;animation:{name} {length}s steps(1,end) forwards"
+            return f"opacity:0;animation:{name} {length}s steps(1,end) {start}s infinite"
+
+        burst = 3.0                                            # the clear photo holds until here
+        seq = [(0.00, 0.08, 0), (0.13, 0.22, 1), (0.22, 0.27, 2), (0.33, 0.42, 0), (0.42, 0.50, 2), (0.50, 0.56, 1)]
+        settle = burst + 0.56
+        clean_off = [(burst + a, burst + b) for a, b, _ in seq]
+        clean_gaps = [(t_in, burst)] + [(clean_off[i][1], clean_off[i + 1][0])
+                                        for i in range(len(clean_off) - 1) if clean_off[i][1] < clean_off[i + 1][0]]
+        css.append("@keyframes gin{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}"
+                   f".gin{{transform-origin:{gx + gw / 2:.0f}px {gy + gh / 2:.0f}px;"
+                   f"animation:gin .6s cubic-bezier(.2,.7,.2,1) {t_in}s both}}")
+        # with reduced motion, every animation is off: the clear photo shows and nothing else does
+        layers = [f'<g class="gin"><use href="#gc" style="animation:gclean {settle}s steps(1,end) forwards"/></g>']
+        stops = "".join(f"{100 * a / settle:.3f}%{{opacity:1}}{100 * b / settle:.3f}%{{opacity:0}}" for a, b in clean_gaps)
+        css.append(f"@keyframes gclean{{0%{{opacity:0}}{stops}100%{{opacity:0}}}}")
+        css.append(f"@keyframes grest{{0%{{opacity:0}}100%{{opacity:1}}}}")
+        layers.append(f'<use href="#gr" style="opacity:0;animation:grest {settle}s steps(1,end) forwards"/>')
+        twitch = [(0.00, 0.07, 0), (0.07, 0.13, 2), (0.20, 0.25, 1)]
+        for k in range(len(gl["burst"])):
+            once = [(burst + a, burst + b) for a, b, f in seq if f == k]
+            layers.append(f'<use href="#gb{k}" style="{cuts(f"gb{k}", once, settle + 0.1)}"/>')
+            again = [(a, b) for a, b, f in twitch if f == k]
+            if again:
+                layers.append(f'<use href="#gb{k}" style="{cuts(f"gt{k}", again, 6, settle + 4)}"/>')
+        body.append('<g class="glitch">' + "".join(layers) + "</g>")
+
     # the photo: fades in sharp, then dissolves strip by strip as the scan line passes
     if photo:
         px, py, pw, ph = AX + photo["x"], AY + photo["y"], photo["w"], photo["h"]
