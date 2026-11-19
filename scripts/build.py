@@ -208,7 +208,10 @@ def hero(d):
     AX, AY = 28, 86                               # top-left corner of the art
     W, H, CW = 800, AY + art["h"] + 56, 7.8       # CW: forced advance of a 13px monospace glyph
     tx = 28 + 2 * CW                              # where typed text starts, after "$ "
-    t0, sweep = 1.1, 1.5                          # when the portrait starts to assemble, and for how long
+    photo = art.get("photo")                       # optional: the real photo, shown before it turns into dots
+    t_in = 1.15                                   # the photo appears once `neofetch` has been typed
+    t0 = 2.9 if photo else 1.1                    # when the scan starts and the dots assemble
+    sweep = 1.6 if photo else 1.5                 # how long the scan takes to cross the portrait
     css, body = [], []
 
     css.append(
@@ -223,6 +226,14 @@ def hero(d):
         f".dg{{transform-origin:{AX + art['w'] / 2:.0f}px {AY + art['h'] / 2:.0f}px;"
         "animation:pop .55s cubic-bezier(.2,.7,.2,1) backwards}"
         f".scan{{opacity:0;animation:scan {sweep}s linear {t0}s}}"
+        f"@keyframes again{{0%{{opacity:0;transform:translateY(0)}}2%,16%{{opacity:.45}}"
+        f"18%,100%{{opacity:0;transform:translateY({art['h']}px)}}}}"
+        f".scan2{{opacity:0;animation:again 10s linear {t0 + sweep + 5:.1f}s infinite}}"
+        "@keyframes phin{from{opacity:0;transform:scale(1.035)}to{opacity:1;transform:none}}"
+        "@keyframes phout{to{opacity:0}}"
+        f".ph{{opacity:0;transform-origin:{AX + art['w'] / 2:.0f}px {AY + art['h'] / 2:.0f}px;"
+        f"animation:phin .7s cubic-bezier(.2,.7,.2,1) {t_in}s both}}"
+        ".st{animation:phout .45s ease-in forwards}"
         ".cur{animation:blink 1s steps(1) infinite}"
         ".c0{animation:cmd .7s steps(8) .4s forwards}"
         ".c0 .cur{animation:gone .01s 1.2s forwards}"
@@ -246,6 +257,21 @@ def hero(d):
     body.append(f'<g class="c0"><rect x="{tx:.1f}" y="52" width="{W}" height="20" fill="{t["bg"]}"/>'
                 f'<rect class="cur" x="{tx:.1f}" y="54" width="8" height="15" fill="{t["accent"]}"/></g>')
 
+    # the photo: fades in sharp, then dissolves strip by strip as the scan line passes
+    if photo:
+        px, py, pw, ph = AX + photo["x"], AY + photo["y"], photo["w"], photo["h"]
+        strips, parts = 24, []
+        body.append(f'<defs><image id="ph" x="{px:g}" y="{py:g}" width="{pw:g}" height="{ph:g}" '
+                    f'preserveAspectRatio="none" href="{photo["href"]}"/>')
+        for i in range(strips):
+            y = py + ph * i / strips
+            body.append(f'<clipPath id="st{i}"><rect x="{px:g}" y="{y:.2f}" width="{pw:g}" '
+                        f'height="{ph / strips + 0.6:.2f}"/></clipPath>')
+            delay = t0 + sweep * (photo["y"] + ph * (i + 0.5) / strips) / art["h"] - 0.1
+            parts.append(f'<use href="#ph" clip-path="url(#st{i})" class="st" style="animation-delay:{delay:.2f}s"/>')
+        body.append("</defs>")
+        body.append('<g class="ph">' + "".join(parts) + "</g>")
+
     # dot-matrix art: a scan line sweeps down and the dots settle into place behind it
     if art["dots"]:
         step, groups = 0.06, {}
@@ -260,8 +286,10 @@ def hero(d):
             body.append(f'<g class="dg" style="animation-delay:{g * step:.2f}s">' + "".join(
                 (f'<g fill="{c}">' + "".join(dots) + "</g>") if len(dots) > 1 else dots[0].replace("/>", f' fill="{c}"/>')
                 for c, dots in by_colour.items()) + "</g>")
-        body.append(f'<g class="scan"><rect x="{AX}" y="{AY - 16}" width="{art["w"]}" height="16" fill="url(#glow)"/>'
-                    f'<rect x="{AX}" y="{AY}" width="{art["w"]}" height="1.5" fill="#7ee787"/></g>')
+        for cls in ("scan", "scan2"):                             # once on load, then a faint pass every 10s
+            body.append(f'<g class="{cls}"><rect x="{AX}" y="{AY - 16}" width="{art["w"]}" height="16" '
+                        f'fill="url(#glow)"/><rect x="{AX}" y="{AY}" width="{art["w"]}" height="1.5" '
+                        'fill="#7ee787"/></g>')
 
     # info column, centred on the art
     ix, dy = AX + art["w"] + 34, max(0, (art["h"] - 250) / 2)
