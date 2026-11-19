@@ -67,38 +67,76 @@
       "repo": "VAANI",
       "badge": "IIT Mandi hackathon '26",
       "stack": "FastAPI · React · TypeScript",
-      "about": "Compares a spoken reading with baseline recordings word by word and reports pace, pause, pitch and loudness flaws with timestamps."
+      "about": "Compares a spoken reading with baseline recordings word by word and reports pace, pause, pitch and loudness flaws with timestamps.",
+      "accent": "cyan",
+      "visual": "waveform",
+      "caption": "rate · pauses · pitch · energy"
     },
     {
       "repo": "PARAKH",
       "badge": "UNCHARTED '26 · team of 3",
       "stack": "FastAPI · MongoDB · GitHub Actions",
-      "about": "Runs a fixed test set against two versions of an LLM prompt and returns one verdict with reasons. Dashboard, CLI and a pull request bot."
+      "about": "Runs a fixed test set against two versions of an LLM prompt and returns one verdict with reasons. Dashboard, CLI and a pull request bot.",
+      "accent": "green",
+      "visual": "verdict",
+      "caption": "30 test cases → one verdict"
+    },
+    {
+      "slug": "tarazu",
+      "title": "TARAZU",
+      "badge": "SIH26035 · prototype",
+      "stack": "React · TypeScript · Vite · Tailwind CSS",
+      "accent": "gold",
+      "visual": "balance",
+      "about": "Digital testing and report workflow for non-automatic weighing instruments, per OIML R-76: setup, test calculations, compliance results.",
+      "caption": "setup · test · report"
+    },
+    {
+      "slug": "sakshya",
+      "title": "SAKSHYA",
+      "badge": "SIH26034 · prototype",
+      "stack": "image analysis · rule-based checks",
+      "accent": "magenta",
+      "visual": "label-scan",
+      "about": "Image-based Legal Metrology checks for packaged goods: scans labels, extracts declarations and flags missing or non-compliant ones.",
+      "caption": "scan · extract · check"
     },
     {
       "repo": "leetcode-solutions",
       "badge": "{lc_repo} solutions",
       "stack": "C++",
-      "about": "My C++ solutions to LeetCode problems, organised by topic and difficulty: arrays, strings, sliding window, linked lists and more."
+      "about": "My C++ solutions to LeetCode problems, organised by topic and difficulty: arrays, strings, sliding window, linked lists and more.",
+      "accent": "amber",
+      "visual": "code",
+      "caption": "from the repo · C++"
     },
     {
       "repo": "CloudForge",
       "badge": "early stage",
       "stack": "Node.js · Express",
-      "about": "A mini cloud platform I am building from scratch to learn cloud engineering. So far: an Express REST API to register and manage projects."
+      "about": "A mini cloud platform I am building from scratch to learn cloud engineering. So far: an Express REST API to register and manage projects.",
+      "accent": "blue",
+      "visual": "api",
+      "caption": "express · :3000 · REST"
     },
     {
       "repo": "TaskForge",
       "badge": "in progress",
       "stack": "HTML · CSS",
-      "about": "A productivity dashboard with tasks, progress, streaks and focus time. The interface is built; the JavaScript logic comes next."
+      "about": "A productivity dashboard with tasks, progress, streaks and focus time. The interface is built; the JavaScript logic comes next.",
+      "accent": "violet",
+      "visual": "tasks",
+      "caption": "tasks · focus · analytics"
     },
     {
       "repo": "Hindi-Punctuation-Translation",
       "title": "Hindi text restoration",
       "badge": "learning project",
       "stack": "Python · Jupyter",
-      "about": "A first NLP experiment: restoring punctuation and sentence order in messy Hindi text with a multilingual DistilBERT model."
+      "about": "A first NLP experiment: restoring punctuation and sentence order in messy Hindi text with a multilingual DistilBERT model.",
+      "accent": "coral",
+      "visual": "hindi",
+      "caption": "reorder · punctuate · translate"
     }
   ],
   "skills": [

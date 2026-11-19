@@ -14,6 +14,7 @@ import json
 import math
 import os
 import re
+import sys
 import urllib.parse
 import urllib.request
 from base64 import b64encode
@@ -21,6 +22,7 @@ from html import escape, unescape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 ASSETS = ROOT / "assets"
 CFG = json.loads((ROOT / "data" / "profile.json").read_text(encoding="utf-8"))
 LOGIN = CFG["login"]
@@ -538,31 +540,25 @@ def calendar_card(d, mode):
 # ---------------------------------------------------------------- project cards
 
 def project_cards(d, mode):
-    t = THEMES[mode]
-    W, H = 420, 164
+    """Animated cards, drawn by scripts/project_cards.py. A project may have no repo (for example a
+    hackathon prototype); then its title, stack and optional url come from data/profile.json."""
+    import project_cards as pc
     fill = fills(d)
-    for proj in CFG["projects"]:
-        repo = d["repos"].get(proj["repo"])
-        if not repo:
+    for k, proj in enumerate(CFG["projects"]):
+        repo = d["repos"].get(proj.get("repo") or "")
+        if proj.get("repo") and not repo:
             print("skipping unknown repo", proj["repo"])
             continue
-        title = proj.get("title", repo["name"])
-        badge = proj.get("badge", "").format(**fill)
-        body = [frame(W, H, t), text(22, 38, title, t["accent"], 15, 700)]
-        if badge:
-            bw = len(badge) * 6.3 + 20
-            body.append(f'<rect x="{W - 22 - bw:.1f}" y="21.5" width="{bw:.1f}" height="24" rx="12" '
-                        f'fill="none" stroke="{t["border"]}"/>')
-            body.append(text(W - 22 - bw / 2, 37.5, badge, t["muted"], 10.5, anchor="middle"))
-        lines = wrap(proj["about"], 52, 3)
-        if lines[-1].endswith("…"):
-            print("WARNING: description cut short for", title)
-        for i, line in enumerate(lines):
-            body.append(text(22, 70 + i * 19, line, t["ink"], 12))
-        body.append(text(22, H - 22, proj.get("stack") or repo["language"] or "", t["muted"], 11))
-        if repo["stargazers_count"]:
-            body.append(text(W - 22, H - 22, f"★ {repo['stargazers_count']}", t["muted"], 11, anchor="end"))
-        write(f"card-{repo['name']}-{mode}.svg", svg(W, H, "".join(body), f"{title}: {proj['about']}"))
+        card = dict(title=proj.get("title") or proj["repo"], badge=proj.get("badge", "").format(**fill),
+                    about=proj["about"], stack=proj.get("stack") or (repo or {}).get("language") or "",
+                    stars=(repo or {}).get("stargazers_count", 0), accent=proj["accent"], visual=proj["visual"],
+                    caption=proj.get("caption", "").format(**fill),
+                    link="repo" if repo else ("open" if proj.get("url") else ""))
+        write(f"card-{card_slug(proj)}-{mode}.svg", pc.render(card, mode, phase=k * 1.1))
+
+
+def card_slug(proj):
+    return proj.get("repo") or proj["slug"]
 
 
 # ---------------------------------------------------------------- README sections
@@ -611,10 +607,11 @@ def projects_block():
     # inside a link does not work here: GitHub re-links the image to the raw file.)
     lines = ['<div align="center">']
     for proj in CFG["projects"]:
-        repo = proj["repo"]
-        url = f"https://github.com/{LOGIN}/{repo}"
-        alt = escape(f"{proj.get('title', repo)}: {proj['about']}", quote=True)
-        lines.append("".join(f'<a href="{url}#gh-{mode}-mode-only"><img src="assets/card-{repo}-{mode}.svg" '
+        slug = card_slug(proj)
+        # a repo links to itself; a project without one links to its "url", or back to this section until it has one
+        url = proj.get("url") or (f"https://github.com/{LOGIN}/{proj['repo']}" if proj.get("repo") else "#featured-projects")
+        alt = escape(f"{proj.get('title') or proj['repo']}: {proj['about']}", quote=True)
+        lines.append("".join(f'<a href="{url}#gh-{mode}-mode-only"><img src="assets/card-{slug}-{mode}.svg" '
                              f'width="49%" alt="{alt}"></a>' for mode in ("dark", "light")))
     lines.append("</div>")
     return "\n".join(lines)
