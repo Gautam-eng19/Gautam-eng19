@@ -237,6 +237,43 @@ def fills(d):
                 repos=d["user"]["public_repos"])
 
 
+def hero_name(x, y, t, css, body, glitch=None):
+    """The name in the hero: large, a light-to-accent gradient, a soft glow, a shine that sweeps across
+    every few seconds, and (with the glitch portrait) a colour split in step with the photo's glitch."""
+    name, size = CFG["name"], 40
+    width = len(name) * size * 0.6
+    def attrs_at(xpos):
+        return f'x="{xpos}" y="{y}" font-size="{size}" font-weight="800" letter-spacing=".5" font-family="{FONT}"'
+
+    attrs = attrs_at(x)
+    body.append(f'<defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e4dcff"/>'
+                f'<stop offset=".45" stop-color="#c4b5fd"/><stop offset="1" stop-color="{t["accent"]}"/></linearGradient>'
+                f'<linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/>'
+                f'<stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>'
+                f'</linearGradient><filter id="nglow" x="-20%" y="-60%" width="140%" height="220%">'
+                f'<feGaussianBlur stdDeviation="8"/></filter>'
+                f'<clipPath id="nclip"><text {attrs}>{escape(name)}</text></clipPath></defs>')
+    out = f'<text {attrs} fill="{t["accent"]}" opacity=".45" filter="url(#nglow)">{escape(name)}</text>'
+    if glitch:                                     # red and cyan copies that flash with the photo's glitch
+        g = glitch
+        once = [(g["burst"] + a, g["burst"] + b) for a, b, _ in g["seq"]]
+        again = [(a, b) for a, b, _ in g["twitch"]]
+        for colour, dx in (("#ff4d6d", -3), ("#22d3ee", 3)):
+            tag = colour[1:4]
+            out += (f'<text {attrs_at(x + dx)} fill="{colour}" '
+                    f'style="{g["cuts"](f"nb{tag}", once, g["settle"] + 0.1)}">{escape(name)}</text>')
+            out += (f'<text {attrs_at(x + dx)} fill="{colour}" '
+                    f'style="{g["cuts"](f"nt{tag}", again, 6, g["settle"] + 4)}">{escape(name)}</text>')
+    out += f'<text {attrs} fill="url(#ng)">{escape(name)}</text>'
+    css.append(f"@keyframes nshine{{0%{{transform:translateX(0)}}22%,100%{{transform:translateX({width + 220:.0f}px)}}}}"
+               ".nshine{animation:nshine 6s cubic-bezier(.4,0,.2,1) 1.8s infinite}")
+    # the slant sits on a wrapper: a CSS animation on the rect itself would replace its transform
+    out += (f'<g clip-path="url(#nclip)"><g transform="translate({y * 0.36:.1f} 0) skewX(-20)">'
+            f'<rect class="nshine" x="{x - 100}" y="{y - size}" width="70" height="{size + 12}" fill="url(#shine)"/>'
+            f'</g></g>')
+    return out
+
+
 def hero(d):
     t = THEMES["dark"]                            # a terminal is dark in either GitHub theme
     fill = fills(d)
@@ -375,10 +412,11 @@ def hero(d):
 
     # info column, centred on the art
     ix, dy = AX + art["w"] + 34, max(0, (art["h"] - 250) / 2)
-    head = text(ix, 114 + dy, CFG["name"], t["ink"], 26, 700)
+    head = hero_name(ix, 121 + dy, t, css, body, gl and dict(burst=burst, seq=seq, settle=settle, twitch=twitch,
+                                                             cuts=cuts))
     for i, line in enumerate(CFG["headline"]):
-        head += text(ix, 137 + dy + i * 17, line, t["muted"], 12.5)
-    rule = 137 + dy + len(CFG["headline"]) * 17 - 4.5
+        head += text(ix, 145 + dy + i * 17, line, t["muted"], 12.5)
+    rule = 145 + dy + len(CFG["headline"]) * 17 - 4.5
     head += f'<line x1="{ix}" y1="{rule}" x2="{W - 28}" y2="{rule}" stroke="{t["border"]}"/>'
     body.append(f'<g class="row" style="animation-delay:1.1s">{head}</g>')
     for i, (key, value) in enumerate(CFG["hero_rows"]):
