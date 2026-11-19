@@ -182,7 +182,7 @@
         {
           "name": "SQL",
           "logo": "icon:database",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://en.wikipedia.org/wiki/SQL"
         }
       ]
@@ -246,13 +246,13 @@
         {
           "name": "MERN Stack",
           "logo": "icon:stack",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://www.mongodb.com/resources/languages/mern-stack"
         },
         {
           "name": "REST APIs",
           "logo": "icon:arrows",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://developer.mozilla.org/en-US/docs/Glossary/REST"
         },
         {
@@ -264,13 +264,13 @@
         {
           "name": "Middleware",
           "logo": "icon:layers",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://expressjs.com/en/guide/using-middleware.html"
         },
         {
           "name": "RBAC",
           "logo": "icon:shield",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://en.wikipedia.org/wiki/Role-based_access_control"
         }
       ]
@@ -327,25 +327,25 @@
         {
           "name": "Data Structures & Algorithms",
           "logo": "icon:tree",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://en.wikipedia.org/wiki/Data_structure"
         },
         {
           "name": "OOP",
           "logo": "icon:cube",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://en.wikipedia.org/wiki/Object-oriented_programming"
         },
         {
           "name": "DBMS",
           "logo": "icon:database",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://en.wikipedia.org/wiki/Database"
         },
         {
           "name": "Authentication",
           "logo": "icon:lock",
-          "color": "3FB950",
+          "color": "A78BFA",
           "url": "https://en.wikipedia.org/wiki/Authentication"
         }
       ]

@@ -32,9 +32,9 @@ FONT = "ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',m
 
 THEMES = {
     "dark": dict(bg="#0d1117", border="#30363d", ink="#e6edf3", muted="#8b949e", grid="#21262d",
-                 accent="#3fb950", ramp=["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]),
+                 accent="#a78bfa", ramp=["#161b22", "#4c2f9e", "#7c5cf0", "#a78bfa", "#c4b5fd"]),
     "light": dict(bg="#ffffff", border="#d0d7de", ink="#1f2328", muted="#656d76", grid="#e4e8ec",
-                  accent="#1a7f37", ramp=["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"]),
+                  accent="#7c3aed", ramp=["#ebedf0", "#ddd6fe", "#a78bfa", "#7c5cf0", "#4c2f9e"]),
 }
 LANG_COLOURS = {
     "Python": "#3572A5", "TypeScript": "#3178c6", "JavaScript": "#f1e05a", "HTML": "#e34c26",
@@ -112,6 +112,41 @@ def load_calendar():
                 active=sum(1 for d in days if d[1]), best=max(d[1] for d in days))
 
 
+def leetcode_stats():
+    """Live solved counts from LeetCode's public profile data; the numbers in data/profile.json are the
+    fallback when LeetCode cannot be reached (it sometimes refuses automated requests).
+    Set LEETCODE_LIVE=0 to skip the request."""
+    saved = dict(CFG.get("leetcode", {}), live=False)
+    user = saved.get("username")
+    if not user or os.environ.get("LEETCODE_LIVE", "1") == "0":
+        return saved
+    query = ("query($u:String!){matchedUser(username:$u){submitStatsGlobal{acSubmissionNum{difficulty count}}"
+             "badges{id} userCalendar{streak totalActiveDays}}}")
+    try:
+        req = urllib.request.Request(
+            "https://leetcode.com/graphql/", data=json.dumps({"query": query, "variables": {"u": user}}).encode(),
+            headers={"Content-Type": "application/json", "Referer": f"https://leetcode.com/u/{user}/",
+                     "User-Agent": "profile-readme-build"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            live = parse_leetcode(json.loads(resp.read().decode("utf-8")))
+    except Exception as err:
+        print("LeetCode not reachable, using the saved numbers:", err)
+        return saved
+    return dict(saved, **live, live=True, as_of=dt.date.today().isoformat())
+
+
+def parse_leetcode(body):
+    user = body["data"]["matchedUser"]
+    counts = {row["difficulty"].lower(): row["count"] for row in user["submitStatsGlobal"]["acSubmissionNum"]}
+    out = {"solved": counts["all"], "easy": counts["easy"], "medium": counts["medium"], "hard": counts["hard"]}
+    if user.get("badges") is not None:
+        out["badges"] = len(user["badges"])
+    calendar = user.get("userCalendar") or {}
+    if calendar.get("streak"):
+        out["max_streak_days"] = calendar["streak"]
+    return out
+
+
 def load():
     user = api(f"/users/{LOGIN}")
     repos = [r for r in api(f"/users/{LOGIN}/repos?per_page=100&type=owner") if not r["fork"]]
@@ -139,7 +174,7 @@ def load():
         for lang, size in api(f"/repos/{LOGIN}/{r['name']}/languages").items():
             langs[lang] = langs.get(lang, 0) + size
 
-    return dict(user=user, repos=by_name, lc=lc, langs=langs, cal=load_calendar(),
+    return dict(user=user, repos=by_name, lc=lc, langs=langs, cal=load_calendar(), leet=leetcode_stats(),
                 stars=sum(r["stargazers_count"] for r in repos))
 
 
@@ -197,7 +232,7 @@ def write(name, content):
 
 def fills(d):
     """Values that the words in data/profile.json can refer to, such as {lc_solved}."""
-    return dict(lc_solved=num(CFG.get("leetcode", {}).get("solved", d["lc"]["total"])),
+    return dict(lc_solved=num(d["leet"].get("solved", d["lc"]["total"])),
                 lc_repo=num(d["lc"]["total"]), contrib=num(d["cal"]["total"]),
                 repos=d["user"]["public_repos"])
 
@@ -244,8 +279,8 @@ def hero(d):
 
     # window chrome
     body.append(f'<clipPath id="win"><rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="12"/></clipPath>'
-                '<linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fb950" '
-                'stop-opacity="0"/><stop offset="1" stop-color="#3fb950" stop-opacity=".3"/></linearGradient>')
+                '<linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c5cf0" '
+                'stop-opacity="0"/><stop offset="1" stop-color="#7c5cf0" stop-opacity=".3"/></linearGradient>')
     body.append(f'<g clip-path="url(#win)"><rect width="{W}" height="{H}" fill="{t["bg"]}"/>')
     body.append(f'<rect width="{W}" height="36" fill="#161b22"/>'
                 f'<line x1="0" y1="36.5" x2="{W}" y2="36.5" stroke="{t["border"]}"/>')
@@ -336,7 +371,7 @@ def hero(d):
         for cls in ("scan", "scan2"):                             # once on load, then a faint pass every 10s
             body.append(f'<g class="{cls}"><rect x="{AX}" y="{AY - 16}" width="{art["w"]}" height="16" '
                         f'fill="url(#glow)"/><rect x="{AX}" y="{AY}" width="{art["w"]}" height="1.5" '
-                        'fill="#7ee787"/></g>')
+                        'fill="#c4b5fd"/></g>')
 
     # info column, centred on the art
     ix, dy = AX + art["w"] + 34, max(0, (art["h"] - 250) / 2)
@@ -438,7 +473,7 @@ def leetcode_card(d, mode):
     """Solved counts come from data/profile.json (LeetCode has no public API to read them from);
     topic counts come from the folders of the solutions repo: <topic>/<difficulty>/<problem>."""
     t = THEMES[mode]
-    lc, prof = d["lc"], CFG.get("leetcode", {})
+    lc, prof = d["lc"], d["leet"]
     if not lc["total"] and not prof:
         return
     names = CFG.get("topic_labels", {})
@@ -449,7 +484,8 @@ def leetcode_card(d, mode):
     note = f"topics counted from the {CFG['leetcode_repo']} repo"
     if prof.get("as_of"):
         as_of = dt.date.fromisoformat(prof["as_of"])
-        note = f"profile numbers as of {as_of.day} {as_of:%b %Y} · " + note
+        when = f"{as_of.day} {as_of:%b %Y}"
+        note = (f"live from LeetCode, updated {when}" if prof.get("live") else f"profile numbers as of {when}") + " · " + note
     facts = [("easy", prof.get("easy", lc["levels"].get("Easy", 0))),
              ("medium", prof.get("medium", lc["levels"].get("Medium", 0))),
              ("hard", prof.get("hard", lc["levels"].get("Hard", 0)))]
@@ -646,6 +682,10 @@ def main():
     cal, lc = d["cal"], d["lc"]
     print(f"contributions={cal['total']} active={cal['active']} longest={cal['longest']} current={cal['current']} "
           f"best={cal['best']} stars={d['stars']} leetcode={lc['total']} levels={lc['levels']}")
+    leet = d["leet"]
+    print(f"leetcode profile ({'live' if leet.get('live') else 'saved'}): solved={leet.get('solved')} "
+          f"easy={leet.get('easy')} medium={leet.get('medium')} hard={leet.get('hard')} "
+          f"max_streak={leet.get('max_streak_days')} badges={leet.get('badges')}")
     print("topics:", sorted(lc["topics"].items(), key=lambda kv: -kv[1]))
     print("langs:", sorted(d["langs"].items(), key=lambda kv: -kv[1]))
 
