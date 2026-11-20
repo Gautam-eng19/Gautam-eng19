@@ -137,6 +137,24 @@
       "accent": "coral",
       "visual": "hindi",
       "caption": "reorder · punctuate · translate"
+    },
+    {
+      "slug": "the-third-direction",
+      "title": "The Third Direction",
+      "url": "https://www.crazygames.com/game/the-third-direction-vjd",
+      "wide": true,
+      "about": "A boss-rush action game where a hand-made pixel forest breaks open into a full 3D arena. Live on CrazyGames; play free.",
+      "image": "assets/the-third-direction.webp",
+      "links": [
+        [
+          "▶ Play free on CrazyGames",
+          "https://www.crazygames.com/game/the-third-direction-vjd"
+        ],
+        [
+          "itch.io",
+          "https://gautam-jain.itch.io/the-third-direction"
+        ]
+      ]
     }
   ],
   "skills": [

@@ -619,6 +619,8 @@ def project_cards(d, mode):
     import project_cards as pc
     fill = fills(d)
     for k, proj in enumerate(CFG["projects"]):
+        if proj.get("image"):                      # the project ships its own card image
+            continue
         repo = d["repos"].get(proj.get("repo") or "")
         if proj.get("repo") and not repo:
             print("skipping unknown repo", proj["repo"])
@@ -627,7 +629,7 @@ def project_cards(d, mode):
                     about=proj["about"], stack=proj.get("stack") or (repo or {}).get("language") or "",
                     stars=(repo or {}).get("stargazers_count", 0), accent=proj["accent"], visual=proj["visual"],
                     caption=proj.get("caption", "").format(**fill),
-                    link="repo" if repo else ("open" if proj.get("url") else ""))
+                    link=proj.get("link_label") or ("repo" if repo else ("open" if proj.get("url") else "")))
         write(f"card-{card_slug(proj)}-{mode}.svg", pc.render(card, mode, phase=k * 1.1))
 
 
@@ -685,8 +687,16 @@ def projects_block():
         # a repo links to itself; a project without one links to its "url", or back to this section until it has one
         url = proj.get("url") or (f"https://github.com/{LOGIN}/{proj['repo']}" if proj.get("repo") else "#featured-projects")
         alt = escape(f"{proj.get('title') or proj['repo']}: {proj['about']}", quote=True)
+        width = "98.6%" if proj.get("wide") else "49%"
+        if proj.get("image"):                      # one image for both themes, then its links as text
+            lines.append(f'<a href="{url}"><img src="{proj["image"]}" width="{width}" alt="{alt}"></a>')
+            if proj.get("links"):
+                lines.append("<br><sub>" + " &nbsp;·&nbsp; ".join(
+                    f'<a href="{escape(href, quote=True)}">{escape(label)}</a>' for label, href in proj["links"])
+                    + "</sub><br><br>")
+            continue
         lines.append("".join(f'<a href="{url}#gh-{mode}-mode-only"><img src="assets/card-{slug}-{mode}.svg" '
-                             f'width="49%" alt="{alt}"></a>' for mode in ("dark", "light")))
+                             f'width="{width}" alt="{alt}"></a>' for mode in ("dark", "light")))
     lines.append("</div>")
     return "\n".join(lines)
 
